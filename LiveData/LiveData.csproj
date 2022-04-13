@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net6.0-windows;net5.0-windows;netcoreapp3.1;net48;net47;net46</TargetFrameworks>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <Authors>marplex</Authors>
+    <Description>A simple android LiveData alternative for WPF and C#</Description>
+    <PackageProjectUrl>https://github.com/marplex/LiveData</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/marplex/LiveData</RepositoryUrl>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageIcon>icon.png</PackageIcon>
+    <RepositoryType></RepositoryType>
+    <PackageTags>livedata;notify;notifypropertychanged;android;wpf;.net framework;viewmodel;ui</PackageTags>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\Art\icon.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <None Include="..\README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
+
+</Project>
