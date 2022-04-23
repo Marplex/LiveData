@@ -13,14 +13,19 @@
   <a href="https://github.com/Marplex"><img alt="Github" src="https://img.shields.io/static/v1?label=GitHub&message=marplex&color=005cb2"/></a> 
 </p>
 
+# Features
 
-## Features
-✅ Automatically notifies value changes<br/>
-✅ Add reactive properties in one line<br/>
-✅ Map one LiveData to another<br/>
-✅ Convert `Task` to LiveData
+- [x] Automatically notifies value changes
+- [x] Add reactive properties in one line
+- [x] Map LiveData values (Map)
+- [x] Convert one LiveData to another (SwitchMap)
+- [x] Combine two LiveData
+- [x] Debounce emitted values
+- [x] Delay emitted values
+- [x] Convert `Task` to LiveData
 
-## Available for
+# Available for
+
 ![NET6](https://img.shields.io/badge/.NET-6.0-red)<br/>
 ![NET5](https://img.shields.io/badge/.NET-5.0-blue)<br/>
 ![NETCore3](https://img.shields.io/badge/.NET%20Core-3.1-brightgreen)<br/>
@@ -28,41 +33,64 @@
 ![NETFramework47](https://img.shields.io/badge/.NET%20Framework-4.7-orange)<br/>
 ![NETFramework46](https://img.shields.io/badge/.NET%20Framework-4.6-orange)
 
-## How to use
-Use LiveData on your viewmodels, and add rective propeties
+# How to use
+
+Use LiveData on your viewmodels and add reactive properties
+
 ```c#
 public class MyViewModel : ViewModel {
 
 	public LiveData<string> SearchQuery { get; set; }
 	public LiveData<bool> IsVisible { get; set; }
-	
+
 	public MyViewModel() {
 
 		SearchQuery = new LiveData<string>("");
 		SearchQuery.Value = "myname";
-		
+
 		//React to SearchQuery changes and map the value to a boolean.
 		//Everything is automatically notified to the UI
 		IsVisible = SearchQuery.Map<bool>(it => it != "");
 	}
-	
+
 }
 ```
-Map to async functions
+
+## Transformations
+
 ```c#
+//Map values to async functions
 IsVisible = SearchQuery.MapAsync<bool>(it => Task.FromResult(true));
+
+
+//Delay emitted values
+DelayedLiveData = MyLiveData.Delay(1000);
+
+
+//Debounce emitted values
+Debounced = MyLiveData.Debounce(1000);
+
+
+//Combine two LiveData
+Combined = First.CombineWith(Second, (a, b) => a + b);
+
+
+//Convert one LiveData to another LiveData
+Mapped = IsVisible.SwitchMap(it => it ? SearchResultLiveData : EmptyResultLiveData);
+
+
+//Concatenate transformation functions
+FinalLiveData = Name.Delay(1000)
+                    .Debounce(800)
+                    .Map(name => "Hello" + name);
 ```
 
-Bind LiveData to xaml properties
-```xml
-<!-- Bind the "Value" property -->
-<TextBlock Text="{Binding LiveData.Value}" />
-```
+## Utils
 
-Extensions further simplify using and transforming livedata objects.
+Extensions further simplify using and transforming LiveData objects.
 
 ```c#
-//Convert task to livedata
+//Convert task to LiveData
 var task = Task.FromResult(true);
 LiveData<bool> IsVisible = task.ToLiveData<bool>();
 
@@ -74,7 +102,17 @@ Items.Append("first");
 Items.Prepend("first");
 ```
 
+## LiveData and XAML Binding
+
+Bind LiveData to xaml properties
+
+```xml
+<!-- Bind the "Value" property --->
+<TextBlock Text="{Binding LiveData.Value}" />
+```
+
 ## 📜 License
+
 ```xml
 Copyright (c) 2022 Marco
 
@@ -94,4 +132,5 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.```
+SOFTWARE.
+```
