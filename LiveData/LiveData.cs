@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Threading.Tasks;
 
 namespace LiveData
 {
@@ -29,7 +28,7 @@ namespace LiveData
         }
 
         /// <summary>
-        /// Used to store events to invoke when a <see cref="Map{M}(Func{T, M}, bool)"/> function is called
+        /// Used to store every handler listening to Value changes
         /// </summary>
         private readonly List<PropertyChangedEventHandler> emitters = new List<PropertyChangedEventHandler>();
 
@@ -37,20 +36,13 @@ namespace LiveData
         /// Instantiate a LiveData with an initial value
         /// </summary>
         /// <param name="initialValue">Initial value</param>
-        public LiveData(T initialValue)
-        {
-            Value = initialValue;
-        }
-
+        public LiveData(T initialValue) => Value = initialValue;
+        public LiveData() { }
         public LiveData<T> WithDefaultValue(T value)
         {
             Value = value;
             return this;
         }
-
-        public LiveData() { }
-
-        
 
         /// <summary>
         /// Notify the value property even if it's not changed
@@ -58,61 +50,6 @@ namespace LiveData
         public void ForceNotify()
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Value)));
-        }
-
-
-        /// <summary>
-        /// Transform one LiveData into another while mapping emitted values.
-        /// </summary>
-        /// <typeparam name="M">LiveData final value type</typeparam>
-        /// <param name="mapper">Map function</param>
-        /// <param name="emitNullItems">If true, the new LiveData will also receive null values</param>
-        /// <returns>Mapped LiveData</returns>
-        public LiveData<M> Map<M>(Func<T, M> mapper, bool emitNullItems = false)
-        {
-            LiveData<M> mapped = new LiveData<M>();
-            var emitter = Observe(it =>
-            {
-                if (!emitNullItems && it == null) return;
-                mapped.Value = mapper.Invoke(it);
-            });
-
-            emitters.Add(emitter);
-
-            //Notify value the first time
-            if (Value != null)
-            {
-                mapped.Value = mapper.Invoke(Value);
-            }
-
-            return mapped;
-        }
-
-        /// <summary>
-        /// Async version of <see cref="Map{M}(Func{T, M}, bool)"/>
-        /// </summary>
-        /// <typeparam name="M">LiveData final value type</typeparam>
-        /// <param name="mapper">Map function</param>
-        /// <param name="emitNullItems">If true, the new LiveData will also receive null values</param>
-        /// <returns>Mapped LiveData</returns>
-        public LiveData<M> MapAsync<M>(Func<T, Task<M>> mapper, bool emitNullItems = false)
-        {
-            LiveData<M> mapped = new LiveData<M>();
-            var emitter = Observe(async (it) =>
-            {
-                if (!emitNullItems && it == null) return;
-                mapped.Value = await mapper.Invoke(it);
-            });
-
-            emitters.Add(emitter);
-
-            //Notify value the first time
-            if (Value != null)
-            {
-                Task.Run(async () => mapped.Value = await mapper.Invoke(Value));
-            }
-
-            return mapped;
         }
 
         /// <summary>
@@ -127,6 +64,9 @@ namespace LiveData
             PropertyChanged += handler;
             emitters.Add(handler);
 
+            //Emit the first time
+            res.Invoke(Value);
+
             return handler;
         }
 
@@ -137,6 +77,7 @@ namespace LiveData
         public void Dispose(PropertyChangedEventHandler disposable)
         {
             PropertyChanged -= disposable;
+            emitters.Remove(disposable);
         }
 
         /// <summary>
@@ -145,6 +86,7 @@ namespace LiveData
         public void DisposeAll()
         {
             emitters.ForEach(emitter => PropertyChanged -= emitter);
+            emitters.Clear();
         }
 
 
